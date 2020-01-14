@@ -1,0 +1,113 @@
+<!doctype html>
+<html eth-tool>
+
+<head>
+  <title>ethtool</title>
+  <script src='/static/js/jquery.js'></script>
+</head>
+<style>
+#title
+{
+    color:blue;
+    font:bold;
+}
+</style>
+ 
+
+<body>
+<div class='container' ng-controller='TaskCtrl'>
+  <h2>blockchain</h2>
+  
+  <form action="/get" id="mainform">
+      <div>
+          <lable id="title">基本信息：</lable>
+          <label for="addr"> 地址 </label>
+          <input type="text" id="addr" placehold="节点地址信息" value="{{.NodeAddr}}">
+          {{/*<input type="button" id="btnheight" value="获取块高" onclick="getinfo('BlockNumber')">*/}}
+          <label for="blocknum" >块高 </label>
+          <input id="blocknum" size="10" readonly style= "background-color:transparent;border:0;" value="{{.blockNumber}}">
+          <label for="account">本地帐户 </label>
+          <input id="account" size="40" readonly style= "background-color:transparent;border:0;" value="{{.coinbase}}">
+          <input type="button" id="commoninfo"  value="刷新" onclick="getinfo('Commoninfo')">
+        </div>
+      <hr style=" height:2px;border:none;border-top:2px dotted #aeb2b6;" />
+      <div>
+            <lable id="title">帐户信息：</lable>
+            <input type="button" id="btntx" value="帐户信息" onclick="getinfo('Accountinfo')">
+            <input type="text" name="account" placeholder="帐户地址">
+            <input type="text" placeholder="交易数/余额" style= "background-color:transparent;border:0;" value="交易数/余额: {{.getTransactionCount}}/{{.getBalance}}">
+            <input type="button" id="accounts"  value="所有帐户" onclick="getinfo('Accounts')">
+            <input type="button" id="btntx" value="新建帐户" onclick="getinfo('NewAccount')">
+        </div>
+      <hr style=" height:2px;border:none;border-top:2px dotted #aeb2b6;" />
+      <div>
+          <lable id="title">区块信息：</lable>
+          <input type="button" id="btnblock" value="获取块" onclick="getinfo('GetBlockByNumber')">
+          <input type="text" name="blocknum" placeholder="块号">
+          <input id="txnumblock" size="10" placeholder="块内交易数" readonly style= "background-color:transparent;border:0;" value="块内交易数: {{.getBlockTransactionCountByNumber}}">
+          <input type="button" id="btntx" value="获取交易" onclick="getinfo('GetTransactionByHash')">
+          <input type="text" name="txhash" placeholder="交易哈希">
+      </div>
+      <hr style=" height:2px;border:none;border-top:2px dotted #aeb2b6;" />
+      <div>
+          <lable id="title">执行交易：</lable>
+          <input type="button" id="btnstarttx" value="发起交易" onclick="getinfo('SendTransaction')">
+          <input type="text" name="accountfrom" placeholder="帐户地址from">
+          <input type="text" name="accountto" placeholder="帐户地址to">
+          <input type="text" name="value" placeholder="转帐金额">
+          <input type="button" id="btncreatec" value="创建合约" onclick="getinfo('CreateContract')">
+          <input type="text" name="contractfile" placeholder="合约文件">
+      </div>
+      <div>
+    <textarea rows="3" cols="80" name="contract" placeholder="合约字节码"></textarea>
+    </div>
+      <hr style=" height:2px;border:none;border-top:2px dotted #185598;" />
+    <pre id="content"></pre>
+    <pre id="content1"></pre>
+    <div>
+    </div>
+    <input type="hidden" name="action" id="action">
+
+  </form>
+
+</div>
+
+<script type="text/javascript">
+    function getinfo(action) {
+        var form = document.getElementById('mainform');
+        document.getElementById('action').value = action;
+        console.log("set action to " + action)
+        form.submit();
+    }
+
+    try {
+        if ({{.Action}} == "BlockNumber")
+        {
+            var objjson = JSON.parse({{.Content}});
+            document.getElementById('height').value = parseInt(objjson.result, 16);
+        }
+    else if ({{.Action}} == "Accounts" || {{.Action}} == "SendTransaction"){
+            document.getElementById('content').innerHTML = {{.Content}};
+        }
+    else
+        {
+            var objjson = JSON.parse({{.Content}});
+            var result = JSON.stringify(objjson, null, 2);
+            document.getElementById('content').innerHTML = result;
+            if ({{.Content1}} != null)
+            {
+                var objjson = JSON.parse({{.Content1}});
+                var result = JSON.stringify(objjson, null, 2);
+                document.getElementById('content1').innerHTML = result;
+            }
+        }
+    } catch (err) {
+        console.log("get result error:" + err);
+    }
+
+
+</script>
+
+
+</body>
+</html>
