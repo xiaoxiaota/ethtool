@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
-	"ethtool/beego4eth/module"
+	"ethtool/module"
 	"os/exec"
 	"reflect"
 	"strconv"
@@ -64,7 +64,7 @@ func (e *EthController) Get() {
 	e.callFun(e.GetString("action"))
 	e.Data["Action"] = e.GetString("action")
 
-	//e.Render()
+	e.Render()
 }
 
 func (e *EthController) callFun(action string) {
@@ -103,32 +103,31 @@ func (e *EthController) EthCommoninfo() {
 				beego.AppConfig.Set("blockNumber", string(module.Hex2dec(snum)))
 			} else {
 				e.Data[commoninfo[i]] = res.Result
-				v,_:=res.Result.(string)
-				beego.AppConfig.Set("coinbase",  v)
+				v, _ := res.Result.(string)
+				beego.AppConfig.Set("coinbase", v)
 			}
 		}
 	}
 
 	//write to config file
 
-
 }
 
 func (e *EthController) EthGetBlockByNumber() {
-	var endn,tn int
+	var endn, tn int
 	var content string
 	//var params []interface{}
 	var blockinfo = []string{"getBlockTransactionCountByNumber", "getBlockByNumber"}
 	blocknumstr := e.GetString("blocknum")
 	narray := strings.Split(blocknumstr, "-")
-	startn,_ := strconv.Atoi(narray[0])
+	startn, _ := strconv.Atoi(narray[0])
 	if len(narray) == 1 {
 		endn = startn
 	} else {
-		endn,_ = strconv.Atoi(narray[1])
+		endn, _ = strconv.Atoi(narray[1])
 	}
 	//params = append(params, module.Dec2hex(e.GetString("blocknum")))
-	for j:=startn;j<=endn;j++{
+	for j := startn; j <= endn; j++ {
 		for i := 0; i < len(blockinfo); i++ {
 			var params []interface{}
 			params = append(params, module.Dec2hex(j))
@@ -150,7 +149,7 @@ func (e *EthController) EthGetBlockByNumber() {
 		}
 
 	}
-	e.Data["Content"] = "["+content+"]"
+	e.Data["Content"] = "[" + content + "]"
 	e.Data["getBlockTransactionCountByNumber"] = tn
 }
 
@@ -209,7 +208,7 @@ func (e *EthController) EthSendTransaction() {
 
 	account := e.GetString("accountfrom")
 	if account == "" {
-		account = e.Data["Coinbase"].(string)
+		account = e.Data["coinbase"].(string)
 	}
 	accountto := e.GetString("accountto")
 	value := module.Dec2hex(e.GetString("value"))
@@ -249,14 +248,13 @@ func (e *EthController) EthSendTransaction() {
 	logs.Debug("tx nonce: ", intv, nonce)
 
 	// send tx
-	var txparams EthTx
 	if accountto == "" {
-		txparams = EthTx{From: account, To: "0x0000000000000000000000000000000000000000", Nonce: nonce, Data: contract, Gas: beego.AppConfig.String("gasc")}
-
+		txparams := EthContract{From: account, Nonce: nonce, Data: contract, Gas: beego.AppConfig.String("gasc")}
+		params = append(params, txparams)
 	} else {
-		txparams = EthTx{From: account, To: accountto, Value: value, Nonce: nonce, Data: contract, Gas: beego.AppConfig.String("gas")}
+		txparams := EthTx{From: account, To: accountto, Value: value, Nonce: nonce, Data: contract, Gas: beego.AppConfig.String("gas")}
+		params = append(params, txparams)
 	}
-	params = append(params, txparams)
 	if res, err = commRPCCall("eth_sendTransaction", params); err != nil {
 		logs.Warn("unlock account error: ", err.Error())
 		e.Data["Content"] = "解锁帐户失败: " + err.Error()
@@ -285,12 +283,12 @@ func (e *EthController) EthCreateContract() {
 	var err error
 
 	//compiler contract
-	cmd:=exec.Command("solc","--optimize" ,"--combined-json","abi,bin,interface" ,"sandbox.sol" )
-	output, _ :=cmd.Output()
+	cmd := exec.Command("solc", "--optimize", "--combined-json", "abi,bin,interface", "sandbox.sol")
+	output, _ := cmd.Output()
 	stroutput := string(output)
-	pos := strings.Index(stroutput,"bin")
-	end := strings.Index(stroutput[pos+6:],"\"")
-	binstr := "0x"+stroutput[pos+6:pos+6+end]
+	pos := strings.Index(stroutput, "bin")
+	end := strings.Index(stroutput[pos+6:], "\"")
+	binstr := "0x" + stroutput[pos+6:pos+6+end]
 
 	// send tx
 	// unlock the account
@@ -331,7 +329,6 @@ func (e *EthController) EthCreateContract() {
 	}
 
 }
-
 
 func commRPCCall(method string, params []interface{}) (module.JsonRes, error) {
 	var res module.JsonRes

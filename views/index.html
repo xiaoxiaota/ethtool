@@ -22,7 +22,7 @@
       <div>
           <lable id="title">基本信息：</lable>
           <label for="addr"> 地址 </label>
-          <input type="text" id="addr" placehold="节点地址信息" value="{{.NodeAddr}}">
+          <input type="text" id="addr" placehold="节点地址信息" readonly value="{{.NodeAddr}}">
           {{/*<input type="button" id="btnheight" value="获取块高" onclick="getinfo('BlockNumber')">*/}}
           <label for="blocknum" >块高 </label>
           <input id="blocknum" size="10" readonly style= "background-color:transparent;border:0;" value="{{.blockNumber}}">
@@ -57,6 +57,12 @@
           <input type="text" name="value" placeholder="转帐金额">
           <input type="button" id="btncreatec" value="创建合约" onclick="getinfo('CreateContract')">
           <input type="text" name="contractfile" placeholder="合约文件">
+      </div>
+      <div>
+          <lable id="title">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</lable>
+          <input type="button" id="btnbatch" value="发起批量交易" onclick="getinfo('BatchTransaction')">
+          <input type="text" name="accountfrom" placeholder="请求总数目">
+          <input type="text" name="accountto" placeholder="并发数">
       </div>
       <div>
     <textarea rows="3" cols="80" name="contract" placeholder="合约字节码"></textarea>

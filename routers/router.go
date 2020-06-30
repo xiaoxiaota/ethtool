@@ -1,7 +1,7 @@
 package routers
 
 import (
-	"ethtool/beego4eth/controllers"
+	"ethtool/controllers"
 	"github.com/astaxie/beego"
 )
 

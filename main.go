@@ -1,7 +1,7 @@
 package main
 
 import (
-	_ "ethtool/beego4eth/routers"
+	_ "ethtool/routers"
 	"github.com/astaxie/beego"
 	//"github.com/astaxie/beego/context"
 )
